@@ -41,8 +41,8 @@
 	something;  ### miss ###
 
 /*--------- Alt-Space ---------*/
-	  /* hit */
-	  /* miss */
+	   /* hit */
+	   /* miss */
 
 /*--------- Blank line(s) at top of file ---------*/
 	/* See above */
@@ -51,15 +51,24 @@
 	/* Should hit on "new blank line at EOF" */
 
 
+/********** DETECTING INCORRECT COMMENT FORMATTING **********/
+something;// hit
+something; // hit
+something;  // miss [hit on C++ comments]
+something;/* hit */
+something; /* hit */
+something;  /* miss */
+
+
 /********** DETECTING BAD LINE CONTINUATION SPACING **********/
-#define something() /* hit */  \
+#define something()  /* hit */  \
 	something;
-#define something() /* hit */\
+#define something()  /* hit */\
 	something;
-#define something() /* miss */ \
+#define something()  /* miss */ \
 	something;
-  \ /* hit */
-	\ /* miss */
+  \  /* hit */
+	\  /* miss */
 
 /********** DETECTING ATTACHED else/catch **********/
 } else(something_else)  /* hit */

@@ -112,6 +112,22 @@ echo
 echo # ************************************************************************
 
 
+echo '********** DETECTING INCORRECT COMMENT FORMATTING **********'
+
+echo '---------- Incorrect trailing comment spacing ----------'
+echo
+git grep -P '[^ \t:]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!server/vgllogin' ':!server/vglserver_config'
+git grep -E '[^ ] \/[\/\*]' -- $FILES $NFORMATTED
+echo
+
+echo '---------- C++-style comments in C files ----------'
+echo
+git grep -E '//' -- '*.c' 'common/rr.h' 'include/[a-z]*.h' 'server/rrtransport.h' $EXCLFILES
+echo
+
+echo # ************************************************************************
+
+
 echo '********** DETECTING BAD LINE CONTINUATION SPACING **********'
 
 echo '---------- More than one space, no spaces ----------'

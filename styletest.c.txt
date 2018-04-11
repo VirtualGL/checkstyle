@@ -7,11 +7,11 @@ styletest.c:	something;	something;  /* hit */
 ---------- Detecting spaces used for indentation ----------
 
 styletest.c:  something;  ### hit ###
-styletest.c:  \ 
+styletest.c:  \  
 
 ---------- Alt-Space ----------
 
-styletest.c:	  /* hit */
+styletest.c:	   /* hit */
 
 ---------- Blank line(s) at top of file ----------
 
@@ -22,18 +22,33 @@ styletest.c:
 
 ---------- General whitespace errors ----------
 
-styletest.c:412: new blank line at EOF.
+styletest.c:421: new blank line at EOF.
+
+
+********** DETECTING INCORRECT COMMENT FORMATTING **********
+---------- Incorrect trailing comment spacing ----------
+
+styletest.c:something;// hit
+styletest.c:something;/* hit */
+styletest.c:something; // hit
+styletest.c:something; /* hit */
+
+---------- C++-style comments in C files ----------
+
+styletest.c:something;// hit
+styletest.c:something; // hit
+styletest.c:something;  // miss [hit on C++ comments]
 
 
 ********** DETECTING BAD LINE CONTINUATION SPACING **********
 ---------- More than one space, no spaces ----------
 
-styletest.c:#define something() /* hit */  \
-styletest.c:#define something() /* hit */\
+styletest.c:#define something()  /* hit */  \
+styletest.c:#define something()  /* hit */\
 
 ---------- Blank line using spaces instead of tabs ----------
 
-styletest.c:  \ /* hit */
+styletest.c:  \  /* hit */
 
 
 ********** DETECTING ATTACHED else/catch **********
