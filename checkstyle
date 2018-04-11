@@ -43,6 +43,13 @@ FILES="./* $EXCLFILES"
 CFILES='*.c *.cpp *.h *.h.in '$EXCLFILES
 NCFILES=':!*.c :!*.cpp :!*.h :!*.h.in'
 
+if [ "$1" = "-selftest" ]; then
+	pushd $SCRIPTDIR >/dev/null 2>&1
+	SCRIPTDIR=.
+	FILES="styletest.c"
+	CFILES="styletest.c"
+fi
+
 filter_quotes()
 {
 	pcregrep -v ':.*\"[^\"]*'"$EXPR"'[^\"]*\"'
@@ -357,3 +364,8 @@ unset EXCLEXPR
 echo
 
 echo # ************************************************************************
+
+
+if [ "$1" = "-selftest" ]; then
+	popd >/dev/null 2>&1
+fi
