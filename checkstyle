@@ -144,10 +144,11 @@ git grep -P '^'"$EXCLEXPR"'.*[^ \t]+ *(?<!= )\{[^}]*$' -- $FILES $NFORMATTED
 unset EXCLEXPR
 echo
 
-echo '---------- {something ----------'
+echo '---------- {something or {  something ----------'
 echo
 git grep -E '\{[^ }]' -- $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
 	filter_quotes
+git grep -E '\{  [^ ]' -- $FILES $NFORMATTED
 echo
 
 echo '---------- { something ... ----------'
@@ -157,10 +158,11 @@ git grep -P '^[ \t]*'"$EXCLEXPR"'\{ [^\}\\]*$' -- $FILES
 unset EXCLEXPR
 echo
 
-echo '---------- something} ----------'
+echo '---------- something} or something  } ----------'
 echo
 git grep -P '[^ \{\t]}' -- $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
 	filter_quotes
+git grep -P '[^ ]  \}(?<!#define CATCH\(\)  \})' -- $FILES
 echo
 
 echo '---------- }something ----------'

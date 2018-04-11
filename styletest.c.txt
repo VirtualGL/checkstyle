@@ -22,7 +22,7 @@ styletest.c:
 
 ---------- General whitespace errors ----------
 
-styletest.c:409: new blank line at EOF.
+styletest.c:412: new blank line at EOF.
 
 
 ********** DETECTING BAD LINE CONTINUATION SPACING **********
@@ -47,21 +47,27 @@ styletest.c:} catch(something)  /* hit */
 
 styletest.c:if(something) {  /* hit */
 
----------- {something ----------
+---------- {something or {  something ----------
 
 styletest.c:{something;  /* hit */
 styletest.c:	{something;  /* hit */
 styletest.c:{something;}  /* hit */
+styletest.c:if(something) {  /* hit */
+styletest.c:{  something;  /* hit */
+styletest.c:{  something;  }  /* hit */
 
 ---------- { something ... ----------
 
+styletest.c:{  something;  /* hit */
 styletest.c:{ something;  /* hit */
 styletest.c:	{ something;  /* hit */
 
----------- something} ----------
+---------- something} or something  } ----------
 
 styletest.c:something;}  /* hit */
 styletest.c:{something;}  /* hit */
+styletest.c:something;  }  /* hit */
+styletest.c:{  something;  }  /* hit */
 
 ---------- }something ----------
 
