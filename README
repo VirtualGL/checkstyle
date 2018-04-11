@@ -1,0 +1,5 @@
+This is a very hackish coding style checker for VirtualGL, developed in
+desperation after discovering a total lack of other formatting/style checking
+tools that could handle the unique needs of our code base.  checkstyle will
+likely require modifications whenever significant new code is checked into
+VirtualGL.

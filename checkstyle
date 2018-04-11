@@ -1,0 +1,359 @@
+#!/bin/bash
+
+# VirtualGL Style Checker, or
+# How I Learned to Stop Worrying and Love Regular Expressions
+#
+# Copyright (C)2018 D. R. Commander.  All Rights Reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# - Redistributions of source code must retain the above copyright notice,
+#   this list of conditions and the following disclaimer.
+# - Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# - Neither the name of The VirtualGL Project nor the names of its
+#   contributors may be used to endorse or promote products derived from this
+#   software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS",
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+SCRIPTDIR=`dirname $0`
+
+set -f
+
+# Move along.  Nothing to format here.
+FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.hpp util/md5*.c include/md5.h server/xfonts.c"
+NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
+EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!common/glx*.h :!server/fltk/ :!server/xcb_headers/ :!*.rtf'
+FILES="./* $EXCLFILES"
+
+# C and C++ files
+CFILES='*.c *.cpp *.h *.h.in '$EXCLFILES
+NCFILES=':!*.c :!*.cpp :!*.h :!*.h.in'
+
+filter_quotes()
+{
+	pcregrep -v ':.*\"[^\"]*'"$EXPR"'[^\"]*\"'
+}
+
+grep_without_c_comments()
+{
+	git ls-files -- ${2+"$@"} | while read file; do
+		"$SCRIPTDIR/remcomms.sh" $file | pcregrep "$1" | sed -E 's@^@'$file':@'
+	done
+}
+
+
+echo
+
+echo '********** DETECTING WHITESPACE ERRORS **********'
+
+echo '---------- Stray tab characters ----------'
+echo
+git grep -P '[^^\n\t]\t' -- $FILES $NFORMATTED ':!common/rr.h' ':!server/rrtransport.h'
+git grep -E $'\t' -- $FORMATTED 'common/rr.h' 'server/rrtransport.h'
+echo
+
+echo '---------- Detecting spaces used for indentation ----------'
+echo
+EXPR='^ +'
+git grep -E "$EXPR" -- $FILES $NCFILES ':!*.md' ':!*.yml' ':!LGPL.txt' ':!LICENSE.txt' ':!cmakescripts/GNUInstallDirs.cmake' ':!cmakescripts/cmake_uninstall.cmake.in' ':!release/deb-control.in'
+# Process C[++] files separately, so we can parse out the comments
+grep_without_c_comments "$EXPR" $CFILES $NFORMATTED ':!common/rr.h' ':!server/rrtransport.h'
+unset EXPR
+echo
+
+echo '---------- Alt-Space ----------'
+echo
+git grep ' ' -- $FILES
+echo
+
+echo '---------- Blank line(s) at top of file ----------'
+echo
+git ls-files -- $FILES | while read file; do
+	MATCH=`head -n1 $file | grep -E '^[ '$'\t]*$'`
+	if [ $? = 0 ]; then
+		echo $file:$MATCH
+	fi
+done
+echo
+
+echo '---------- No blank line at end of file ----------'
+echo
+git ls-files -- $FILES | while read file; do
+	pcregrep -ML '\n\Z$' $file
+done
+echo
+
+echo '---------- General whitespace errors ----------'
+echo
+git diff --check $(git rev-list HEAD | tail -n 1) -- $FILES
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING BAD LINE CONTINUATION SPACING **********'
+
+echo '---------- More than one space, no spaces ----------'
+echo
+git grep -P '[^ \t]+(\\| {2,}\\)$' -- $FILES
+echo
+
+echo '---------- Blank line using spaces instead of tabs ----------'
+echo
+git grep -P '^[\t]* +[\t]*\\' -- $FILES
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING ATTACHED else/catch **********'
+echo
+git grep -E '}.*(else|catch)[^}]+$' -- $FILES $NFORMATTED
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT BRACKET SPACING **********'
+
+echo '---------- Attached bracket ----------'
+echo
+EXCLEXPR='(?!extern \"C\" {)(?!namespace)(?!enum)(?!#define TRY\(\)  try {)'
+git grep -P '^'"$EXCLEXPR"'.*[^ \t]+ *(?<!= )\{[^}]*$' -- $FILES $NFORMATTED
+unset EXCLEXPR
+echo
+
+echo '---------- {something ----------'
+echo
+git grep -E '\{[^ }]' -- $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
+	filter_quotes
+echo
+
+echo '---------- { something ... ----------'
+echo
+EXCLEXPR='(?!{ \"Anaglyphic \(Green)'
+git grep -P '^[ \t]*'"$EXCLEXPR"'\{ [^\}\\]*$' -- $FILES
+unset EXCLEXPR
+echo
+
+echo '---------- something} ----------'
+echo
+git grep -P '[^ \{\t]}' -- $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
+	filter_quotes
+echo
+
+echo '---------- }something ----------'
+echo
+git grep -E '}[^ ;,\"]' -- $FILES ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!release/*.in' ':!server/vglgenkey' ':!server/vglserver_config'
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT STATEMENT SPACING **********'
+
+for statement in if for catch while do switch; do
+	echo '---------- '$statement' ( ----------'
+	echo
+	git grep -E $statement' \(' -- $FILES $NFORMATTED ':!cmakescripts/GNUInstallDirs.cmake' ':!cmakescripts/cmake_uninstall.cmake.in'
+	echo
+done
+
+echo '---------- Semicolon spacing in one-liners ----------'
+echo
+EXPR='; [^ \\}]'
+EXCLEXPR='(?!\t*for\()(?!\t*if\(.*\) for\()(?!\t*dstbptr = \&dstptr\[bindex\];)'
+grep_without_c_comments '^'"$EXCLEXPR"'.*'"$EXPR" $FILES $NFORMATTED ':!.travis.yml' ':!/*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/utiltest*.in'
+unset EXPR
+unset EXCLEXPR
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT FUNCTION/TYPE CAST SPACING **********'
+
+echo '---------- (type*) ----------'
+echo
+git grep -E '[^ \(\*]\*\)' -- $FILES $NFORMATTED ':!client/vglconnect.in' ':!server/vglrun.in' ':!server/vglserver_config'
+echo
+
+echo '---------- (type**) ----------'
+echo
+git grep -E '[^ \*]\*\*\)' -- $FILES ':!BUILDING.md'
+echo
+
+echo '---------- (type) var ----------'
+echo
+grep_without_c_comments '(^|[\t ])\([^\*][^\)\> ]*\) [A-Za-z0-9_\(]' $FILES $NFORMATTED ':!*.md' ':!/L*.txt' ':!cmakescripts/' ':!release/' |
+	filter_quotes
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT MACRO SPACING **********'
+echo
+EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()'
+git ls-files -- $FILES $NFORMATTED | while read file; do
+	pcregrep -H -M "$EXCLEXPR"'#define.*\\\n[^{\t]' $file
+done
+# #define  something
+git grep -E '^#define {2,}' -- $FILES
+# #define something(...) something
+git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]+\) [^ \(\\]' -- $FILES $NFORMATTED
+# #define something(...)   something
+git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]+\) {3,}[^ ]' -- $FILES $NFORMATTED
+# #define something something
+git grep -E '^#define [^\(\) ]+ [^ \\]' -- $FILES $NFORMATTED
+# #define something   something
+git grep -E '^#define [^\(\) ]+ {3,}[^ \\]' -- $FILES $NFORMATTED
+unset EXCLEXPR
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT COMMA SPACING **********'
+
+echo '---------- [ ], ----------'
+echo
+git grep -E ' ,' -- $FILES
+echo
+
+echo '---------- ,something ----------'
+echo
+git grep -E ',[^ \"'\''\)]' -- $FILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config'
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT OPERATOR SPACING **********'
+
+echo '---------- Incorrect pointer operator spacing ----------'
+echo
+grep_without_c_comments '[^ /\*}\t]\* [^&]' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/vglserver_config'
+echo
+
+echo '---------- Incorrect address operator spacing ----------'
+echo
+git grep -E '[^ \&]\&[ ]' -- $FILES
+echo
+
+# OPERATORS:
+# Assignment: =, +=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=
+# Arithmetic: +, -, *, /, %
+# Unary: +something, -something
+# Increment/decrement: ++something, something++, --something, something--
+# Comparison: ==, !=, >, <, >=, <=
+# Logical: !, &&, ||
+# Bitwise: ~, &, |, ^, <<, >>
+
+echo '---------- No space before other operators ----------'
+echo
+OP='(?!\-\>)(?!\+\+)(?!\-\-)(?!\*\*)([=\+\-\*/%&\|\^\!\<\>]*=|[\+\*/%]|\-(?![0-9])|\>+|\<+|&+|\|+|\^)'
+EXPR='[^ ]\b[\)\]]*'"$OP"
+EXCLEXPR='(?<!::operator=)(?<!&operator=)(?<!\VirtualWin\*)'
+grep_without_c_comments "$EXPR""$EXCLEXPR"'[^\)]' $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
+	filter_quotes |
+	pcregrep -v ':\t*#include \<.*\>' |
+	pcregrep -v ':\t*template \<.*\>' |
+	pcregrep -v ':#define HASH  Hash\<'
+
+# Process ternary conditional operators separately, so we can filter out
+# cases and labels.
+EXPR='[^ ]\b[\)\]]*[?:]'
+grep_without_c_comments "$EXPR"'[^:]' $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+	filter_quotes |
+	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default):'
+
+unset EXPR
+unset EXCLEXPR
+echo
+
+echo '---------- No space after other operators ----------'
+echo
+# NOTE: We can't check for *something or &something effectively, because
+# there's no way to distinguish those errors from valid pointer/address
+# operators.  We also can't check for -something effectively, because there's
+# no way to distinguish those errors from valid unary operators.  We have to
+# hope that, if such errors exist, they will be caught by the something{op}
+# check.  We also have to hope that someone will eventually write a decent
+# open source C style checker!
+OP='([=\+\-\*/%&\|\^\!\<\>]*=|[\+/%]|\>+|\<+|&&|\|+|\^)(?<!\-\>)(?<!\+\+)(?<!\-\-)'
+EXPR="$OP"'[\(]*\b[^ ]'
+grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
+	filter_quotes |
+	pcregrep -v ':\t*#include \<.*\>' |
+	pcregrep -v ':\t*template \<.*\>' |
+	pcregrep -v ':#define HASH  Hash\<'
+
+# Process ternary conditional operators separately
+EXPR='[?:][\(]*\b[^ ]'
+grep_without_c_comments '[^:]'"$EXPR" $FILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
+	filter_quotes
+
+unset EXPR
+echo
+
+echo '---------- [!|~] something ----------'
+echo
+git grep -E '[!~] \b' -- $FILES $NFORMATTED ':!server/vglserver_config'
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT OPERATOR CONTINUANCE **********'
+echo
+
+# In general, trailing operators are preferred, but those create readability
+# problems in continued expressions unless the continued expressions are
+# aligned under the open parenthesis, and aligning under the open parenthesis
+# creates problems unless you use spaces for indentation and aligning, and
+# using spaces for indentation and aligning creates wrist strain.  The
+# VirtualGL formatting style attempts to balance the (sometimes competing)
+# goals of readability and ease of maintenance.
+
+OP='([\+\-\*/%&\|\^]*=|\>\>=|\<\<=|\?|\:)'
+EXPR='^ *'"$OP"' +'
+git grep -P "$EXPR" -- $FILES
+
+OP='([=\!\<\>]=|[\+\-\*/%]|\>+|\<+|&+|\|+|\^)'
+EXPR=' '"$OP"'($| \\$)'
+EXCLEXPR='(?<!xcb_glx_query_version_reply_t \*)(?<!xcb_query_extension_reply_t \*)'
+grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!cmakescripts/' ':!include/vglutil.h' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.vars.in' ':!util/utiltest*.in'
+
+unset EXPR
+unset EXCLEXPR
+echo
+
+echo # ************************************************************************
+
+
+echo '********** DETECTING INCORRECT FUNCTION SPACING **********'
+echo
+EXPR='\b \('
+EXCLEXPR='(?<!if \()(?<!delete \()(?<!else \()(?<!return \()'
+grep_without_c_comments "$EXPR""$EXCLEXPR"'[^\*]' $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+	filter_quotes
+unset EXPR
+unset EXCLEXPR
+echo
+
+echo # ************************************************************************
