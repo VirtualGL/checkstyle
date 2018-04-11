@@ -207,6 +207,11 @@ unset EXPR
 unset EXCLEXPR
 echo
 
+echo '---------- Incorrect delete array spacing ----------'
+echo
+git grep -E 'delete\[' -- $FILES
+echo
+
 echo # ************************************************************************
 
 

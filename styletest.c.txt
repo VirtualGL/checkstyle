@@ -22,7 +22,7 @@ styletest.c:
 
 ---------- General whitespace errors ----------
 
-styletest.c:421: new blank line at EOF.
+styletest.c:423: new blank line at EOF.
 
 
 ********** DETECTING INCORRECT COMMENT FORMATTING **********
@@ -117,6 +117,10 @@ styletest.c:switch ()  /* hit */
 ---------- Semicolon spacing in one-liners ----------
 
 styletest.c:do_stuff; do_other_stuff;  ### hit ###
+
+---------- Incorrect delete array spacing ----------
+
+styletest.c:delete[]  /* hit */
 
 
 ********** DETECTING INCORRECT FUNCTION/TYPE CAST SPACING **********

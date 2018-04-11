@@ -114,6 +114,8 @@ switch ()  /* hit */
 switch()  /* miss */
 do_stuff; do_other_stuff;  ### hit ###
 do_stuff;  do_other_stuff;  ### miss ###
+delete[]  /* hit */
+delete []  /* miss */
 
 
 /********** DETECTING INCORRECT FUNCTION/TYPE CAST SPACING **********/
