@@ -245,9 +245,9 @@ done
 # #define  something
 git grep -E '^#define {2,}' -- $FILES
 # #define something(...) something
-git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]+\) [^ \(\\]' -- $FILES $NFORMATTED
+git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) [^ \(\\]' -- $FILES $NFORMATTED
 # #define something(...)   something
-git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]+\) {3,}[^ ]' -- $FILES $NFORMATTED
+git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) {3,}[^ ]' -- $FILES $NFORMATTED
 # #define something something
 git grep -E '^#define [^\(\) ]+ [^ \\]' -- $FILES $NFORMATTED
 # #define something   something
@@ -267,7 +267,11 @@ echo
 
 echo '---------- ,something ----------'
 echo
-git grep -E ',[^ \"'\''\)]' -- $FILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config'
+EXPR=',[^ ]'
+EXCLEXPR='(?<!\" \\t)'
+git grep -P "$EXCLEXPR""$EXPR" -- $FILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config' |
+	filter_quotes
+unset EXCLEXPR
 echo
 
 echo # ************************************************************************
@@ -277,12 +281,14 @@ echo '********** DETECTING INCORRECT OPERATOR SPACING **********'
 
 echo '---------- Incorrect pointer operator spacing ----------'
 echo
-grep_without_c_comments '[^ /\*}\t]\* [^&]' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/vglserver_config'
+EXCLEXPR='(?!n\* &)'
+grep_without_c_comments "$EXCLEXPR"'[^ /\*}\t]\* ' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/vglserver_config'
+unset EXCLEXPR
 echo
 
 echo '---------- Incorrect address operator spacing ----------'
 echo
-git grep -E '[^ \&]\&[ ]' -- $FILES
+git grep -E '[^ \&]\& ' -- $FILES
 echo
 
 # OPERATORS:
@@ -296,10 +302,10 @@ echo
 
 echo '---------- No space before other operators ----------'
 echo
-OP='(?!\-\>)(?!\+\+)(?!\-\-)(?!\*\*)([=\+\-\*/%&\|\^\!\<\>]*=|[\+\*/%]|\-(?![0-9])|\>+|\<+|&+|\|+|\^)'
+OP='(?!\-\>)(?!\+\+)(?!\-\-)(?!\*\*)([=\+\-\*/%&\|\^\!\<\>]*=|[\+/%]|\*(?!\))|\-(?![0-9])|\>+|\<+|&+|\|+|\^)'
 EXPR='[^ ]\b[\)\]]*'"$OP"
 EXCLEXPR='(?<!::operator=)(?<!&operator=)(?<!\VirtualWin\*)'
-grep_without_c_comments "$EXPR""$EXCLEXPR"'[^\)]' $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
+grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
 	filter_quotes |
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
@@ -307,8 +313,8 @@ grep_without_c_comments "$EXPR""$EXCLEXPR"'[^\)]' $FILES $NFORMATTED ':!*.md' ':
 
 # Process ternary conditional operators separately, so we can filter out
 # cases and labels.
-EXPR='[^ ]\b[\)\]]*[?:]'
-grep_without_c_comments "$EXPR"'[^:]' $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+EXPR='[^ ]\b[\)\]]*(\?|:(?!:))'
+grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
 	filter_quotes |
 	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default):'
 
@@ -334,8 +340,8 @@ grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' 
 	pcregrep -v ':#define HASH  Hash\<'
 
 # Process ternary conditional operators separately
-EXPR='[?:][\(]*\b[^ ]'
-grep_without_c_comments '[^:]'"$EXPR" $FILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
+EXPR='(\?|(?<!:):)[\(]*\b[^ ]'
+grep_without_c_comments "$EXPR" $FILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
 	filter_quotes
 
 unset EXPR
