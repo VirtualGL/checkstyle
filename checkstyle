@@ -360,14 +360,15 @@ echo
 # VirtualGL formatting style attempts to balance the (sometimes competing)
 # goals of readability and ease of maintenance.
 
-OP='([\+\-\*/%&\|\^]*=|\>\>=|\<\<=|\?|\:)'
-EXPR='^ *'"$OP"' +'
-git grep -P "$EXPR" -- $FILES
+OP='([\+\-\*/%&\|\^]*=|[\+\-\*/%\^\|&]|\>\>=*|\<\<=*|\?|\:)'
+EXPR='^[ \t]*'"$OP"' +'
+EXCLEXPR='(?!doSSL\(doSSL_\))'
+grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES ':!*.yml' ':!*.md' ':!release/*.in' |
+	pcregrep -v 'util/glreadtest.cpp:\t+\+ 1'
 
-OP='([=\!\<\>]=|[\+\-\*/%]|\>+|\<+|&+|\|+|\^)'
+OP='([=\!\<\>]=|\>|\<|&&|\|\|)'
 EXPR=' '"$OP"'($| \\$)'
-EXCLEXPR='(?<!xcb_glx_query_version_reply_t \*)(?<!xcb_query_extension_reply_t \*)'
-grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!cmakescripts/' ':!include/vglutil.h' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.vars.in' ':!util/utiltest*.in'
+git grep -P "$EXPR" -- $FILES $NFORMATTED  ':!*.yml' ':!cmakescripts/' ':!include/vglutil.h' ':!server/vglgenkey' ':!server/vglrun.vars.in' ':!util/utiltest*.in'
 
 unset EXPR
 unset EXCLEXPR

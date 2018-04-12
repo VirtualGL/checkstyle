@@ -22,7 +22,7 @@ styletest.c:
 
 ---------- General whitespace errors ----------
 
-styletest.c:423: new blank line at EOF.
+styletest.c:422: new blank line at EOF.
 
 
 ********** DETECTING INCORRECT COMMENT FORMATTING **********
@@ -265,13 +265,18 @@ styletest.c:|= something  ### miss [hit on operator continuance] ###
 styletest.c:^= something  ### miss [hit on operator continuance] ###
 styletest.c:<<= something  ### miss [hit on operator continuance] ###
 styletest.c:>>= something  ### miss [hit on operator continuance] ###
+styletest.c:+ something  ### miss [hit on operator continuance] ###
+styletest.c:- something  ### miss [hit on operator continuance] ###
+styletest.c:* something  ### miss [hit on operator continuance] ###
+styletest.c:/ something  ### miss [hit on operator continuance] ###
+styletest.c:% something  ### miss [hit on operator continuance] ###
+styletest.c:| something  ### miss [hit on operator continuance] ###
+styletest.c:^ something  ### miss [hit on operator continuance] ###
+styletest.c:<< something  ### miss [hit on operator continuance] ###
+styletest.c:>> something  ### miss [hit on operator continuance] ###
+styletest.c:& something  ### miss [hit on operator continuance] ###
 styletest.c:? something  ### hit ###
 styletest.c:: something  ### hit ###
-styletest.c:### hit ###  something +
-styletest.c:### hit ###  something -
-styletest.c:### hit ###  something *
-styletest.c:### hit ###  something /
-styletest.c:### hit ###  something %
 styletest.c:### hit ###  something ==
 styletest.c:### hit ###  something !=
 styletest.c:### hit ###  something >
@@ -280,11 +285,6 @@ styletest.c:### hit ###  something >=
 styletest.c:### hit ###  something <=
 styletest.c:### hit ###  something &&
 styletest.c:### hit ###  something ||
-styletest.c:### hit ###  something &
-styletest.c:### hit ###  something |
-styletest.c:### hit ###  something ^
-styletest.c:### hit ###  something <<
-styletest.c:### hit ###  something >>
 
 
 ********** DETECTING INCORRECT FUNCTION SPACING **********
