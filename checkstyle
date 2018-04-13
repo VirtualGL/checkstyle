@@ -34,14 +34,14 @@ SCRIPTDIR=`dirname $0`
 set -f
 
 # Move along.  Nothing to format here.
-FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.hpp util/md5*.c include/md5.h server/xfonts.c"
+FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.hpp util/md5*.c include/md5.h server/xfonts.c include/boost/endian.hpp"
 NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
-EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!common/glx*.h :!server/fltk/ :!server/xcb_headers/ :!*.rtf'
+EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!common/glx*.h :!server/fltk/ :!server/xcb_headers/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
 
 # C and C++ files
-CFILES='*.c *.cpp *.h *.h.in '$EXCLFILES
-NCFILES=':!*.c :!*.cpp :!*.h :!*.h.in'
+CFILES='*.c *.cpp *.h *.hpp *.h.in '$EXCLFILES
+NCFILES=':!*.c :!*.cpp :!*.h :!*.hpp :!*.h.in'
 
 if [ "$1" = "-selftest" ]; then
 	pushd $SCRIPTDIR >/dev/null 2>&1
@@ -132,7 +132,7 @@ echo '********** DETECTING BAD LINE CONTINUATION SPACING **********'
 
 echo '---------- More than one space, no spaces ----------'
 echo
-git grep -P '[^ \t]+(\\| {2,}\\)$' -- $FILES
+git grep -P '[^ \t]+(\\| {2,}\\)$' -- $FILES $NFORMATTED
 echo
 
 echo '---------- Blank line using spaces instead of tabs ----------'
@@ -201,7 +201,7 @@ done
 echo '---------- Semicolon spacing in one-liners ----------'
 echo
 EXPR='; [^ \\}]'
-EXCLEXPR='(?!\t*for\()(?!\t*if\(.*\) for\()(?!\t*dstbptr = \&dstptr\[bindex\];)'
+EXCLEXPR='(?!\t*for\()(?!\t*if\(.*\) for\()(?!\t*dstbptr = \&dstptr\[(pf-\>bindex|bindex)\];)'
 grep_without_c_comments '^'"$EXCLEXPR"'.*'"$EXPR" $FILES $NFORMATTED ':!.travis.yml' ':!/*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/utiltest*.in'
 unset EXPR
 unset EXCLEXPR
@@ -238,7 +238,7 @@ echo # ************************************************************************
 
 echo '********** DETECTING INCORRECT MACRO SPACING **********'
 echo
-EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()'
+EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()(?!#define DEFINE_PF3\(id\))(?!#define DEFINE_PF4\(id\))(?!#define DEFINE_PF4C\(id\))(?!#define DRAWLOGO\(\))'
 git ls-files -- $FILES $NFORMATTED | while read file; do
 	pcregrep -H -M "$EXCLEXPR"'#define.*\\\n[^{\t]' $file
 done
@@ -251,7 +251,7 @@ git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) {3,}[^ ]' -- $FILES $NFORMATTED
 # #define something something
 git grep -E '^#define [^\(\) ]+ [^ \\]' -- $FILES $NFORMATTED
 # #define something   something
-git grep -E '^#define [^\(\) ]+ {3,}[^ \\]' -- $FILES $NFORMATTED
+git grep -E '^#define [^\(\) ]+ {3,}[^ \\]' -- $FILES $NFORMATTED ':!util/pf.c'
 unset EXCLEXPR
 echo
 
@@ -262,7 +262,7 @@ echo '********** DETECTING INCORRECT COMMA SPACING **********'
 
 echo '---------- [ ], ----------'
 echo
-git grep -E ' ,' -- $FILES
+git grep -E ' ,' -- $FILES $NFORMATTED
 echo
 
 echo '---------- ,something ----------'
@@ -314,9 +314,9 @@ grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.md' ':!*CMake
 # Process ternary conditional operators separately, so we can filter out
 # cases and labels.
 EXPR='[^ ]\b[\)\]]*(\?|:(?!:))'
-grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
 	filter_quotes |
-	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default):'
+	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default|public|private|protected|bailout|noshm|done|found|finally|global|local|start):'
 
 unset EXPR
 unset EXCLEXPR
