@@ -245,7 +245,8 @@ done
 # #define  something
 git grep -E '^#define {2,}' -- $FILES
 # #define something(...) something
-git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) [^ \(\\]' -- $FILES $NFORMATTED
+EXCLEXPR='(?<!#define byteswap\(i\) \()(?<!#define byteswap16\(i\) \()(?<!#define byteswap24\(i\) \()'
+git grep -P '^#define [A-Za-z0-9_]+\([^\(\)]*\) [^ \\]'"$EXCLEXPR" -- $FILES $NFORMATTED
 # #define something(...)   something
 git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) {3,}[^ ]' -- $FILES $NFORMATTED
 # #define something something
