@@ -155,7 +155,7 @@ echo '********** DETECTING INCORRECT BRACKET SPACING **********'
 
 echo '---------- Attached bracket ----------'
 echo
-EXCLEXPR='(?!extern \"C\" {)(?!namespace)(?!enum)(?!#define TRY\(\)  try {)'
+EXCLEXPR='(?!extern \"C\" {)(?!namespace)(?!enum)(?!#define TRY\(\)  try {)(?!BEGIN {DONE=0} {)(?!END {)(?!\tif\(DONE==0\) {)(?!\tif\(\/\^\$\|\^\[\^\#\]\/ && DONE==0\) {)'
 git grep -P '^'"$EXCLEXPR"'.*[^ \t]+ *(?<!= )\{[^}]*$' -- $FILES $NFORMATTED
 unset EXCLEXPR
 echo
@@ -310,12 +310,13 @@ grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.md' ':!*CMake
 	filter_quotes |
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
-	pcregrep -v ':#define HASH  Hash\<'
+	pcregrep -v ':#define HASH  Hash\<' |
+	pcregrep -v ':LOAD_XCB_SYMBOL\(.*\)'
 
 # Process ternary conditional operators separately, so we can filter out
 # cases and labels.
 EXPR='[^ ]\b[\)\]]*(\?|:(?!:))'
-grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*' ':!server/servertest.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
 	filter_quotes |
 	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default|public|private|protected|bailout|noshm|done|found|finally|global|local|start):'
 
