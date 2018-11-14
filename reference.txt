@@ -1,0 +1,132 @@
+
+********** DETECTING WHITESPACE ERRORS **********
+---------- Stray tab characters ----------
+
+
+---------- Detecting spaces used for indentation ----------
+
+
+---------- Alt-Space ----------
+
+
+---------- Blank line(s) at top of file ----------
+
+
+---------- No blank line at end of file ----------
+
+
+---------- General whitespace errors ----------
+
+
+
+********** DETECTING INCORRECT COMMENT FORMATTING **********
+---------- Incorrect trailing comment spacing ----------
+
+
+---------- C++-style comments in C files ----------
+
+
+
+********** DETECTING BAD LINE CONTINUATION SPACING **********
+---------- More than one space, no spaces ----------
+
+
+---------- Blank line using spaces instead of tabs ----------
+
+
+
+********** DETECTING ATTACHED else/catch **********
+
+
+
+********** DETECTING INCORRECT BRACKET SPACING **********
+---------- Attached bracket ----------
+
+
+---------- {something or {  something ----------
+
+
+---------- { something ... ----------
+
+
+---------- something} or something  } ----------
+
+
+---------- }something ----------
+
+
+
+********** DETECTING INCORRECT STATEMENT SPACING **********
+---------- if ( ----------
+
+
+---------- for ( ----------
+
+
+---------- catch ( ----------
+
+
+---------- while ( ----------
+
+
+---------- do ( ----------
+
+
+---------- switch ( ----------
+
+
+---------- Semicolon spacing in one-liners ----------
+
+
+---------- Incorrect delete array spacing ----------
+
+
+
+********** DETECTING INCORRECT FUNCTION/TYPE CAST SPACING **********
+---------- (type*) ----------
+
+
+---------- (type**) ----------
+
+
+---------- (type) var ----------
+
+
+
+********** DETECTING INCORRECT MACRO SPACING **********
+
+
+
+********** DETECTING INCORRECT COMMA SPACING **********
+---------- [ ], ----------
+
+
+---------- ,something ----------
+
+
+
+********** DETECTING INCORRECT OPERATOR SPACING **********
+---------- Incorrect pointer operator spacing ----------
+
+
+---------- Incorrect address operator spacing ----------
+
+
+---------- No space before other operators ----------
+
+
+---------- No space after other operators ----------
+
+
+---------- [!|~] something ----------
+
+
+
+********** DETECTING INCORRECT OPERATOR CONTINUANCE **********
+
+
+
+********** DETECTING INCORRECT FUNCTION SPACING **********
+
+
+
