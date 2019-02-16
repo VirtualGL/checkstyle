@@ -258,7 +258,7 @@ done
 # #define  something
 git grep -E '^#define {2,}' -- $FILES
 # #define something(...) something
-EXCLEXPR='(?<!#define byteswap\(i\) \()(?<!#define byteswap16\(i\) \()(?<!#define byteswap24\(i\) \()'
+EXCLEXPR='(?<!#define BYTESWAP\(i\) \()(?<!#define BYTESWAP16\(i\) \()(?<!#define BYTESWAP24\(i\) \()'
 git grep -P '^#define [A-Za-z0-9_]+\([^\(\)]*\) [^ \\]'"$EXCLEXPR" -- $FILES $NFORMATTED
 # #define something(...)   something
 git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) {3,}[^ ]' -- $FILES $NFORMATTED
@@ -352,6 +352,7 @@ grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' 
 	filter_quotes |
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
+	pcregrep -v ':\t*\(dynamic_cast \<.*\>' |
 	pcregrep -v ':#define HASH  Hash\<'
 
 # Process ternary conditional operators separately
