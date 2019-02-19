@@ -39,15 +39,16 @@ NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
 EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!common/glx*.h :!server/fltk/ :!server/xcb_headers/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
 
-# C and C++ files
-CFILES='*.c *.cpp *.h *.hpp *.h.in '$EXCLFILES
-NCFILES=':!*.c :!*.cpp :!*.h :!*.hpp :!*.h.in'
+# C files
+CFILES='*.c include/[a-z]*.h diags/dsimple.h common/rr.h include/vglinline.h.in server/glext-vgl.h server/rrtransport.h'
+NCFILES=':!*.c :!include/[a-z]*.h :!diags/dsimple.h :!common/rr.h :!include/vglinline.h.in :!server/glext-vgl.h :!server/rrtransport.h'
 
 if [ "$1" = "-selftest" ]; then
 	pushd $SCRIPTDIR >/dev/null 2>&1
 	SCRIPTDIR=.
 	FILES="styletest.c"
 	CFILES="styletest.c"
+	EXCLFILES=":!styletest.c.txt"
 fi
 
 filter_quotes()
@@ -81,9 +82,9 @@ echo
 echo '---------- Detecting spaces used for indentation ----------'
 echo
 EXPR='^ +'
-git grep -E "$EXPR" -- $FILES $NCFILES ':!*.md' ':!*.yml' ':!LGPL.txt' ':!LICENSE.txt' ':!cmakescripts/GNUInstallDirs.cmake' ':!cmakescripts/cmake_uninstall.cmake.in' ':!release/deb-control.in'
-# Process C[++] files separately, so we can parse out the comments
-grep_without_c_comments "$EXPR" $CFILES $NFORMATTED ':!common/rr.h' ':!server/rrtransport.h'
+git grep -E "$EXPR" -- $FILES $NCFILES $NFORMATTED ':!*.md' ':!*.yml' ':!LGPL.txt' ':!LICENSE.txt' ':!cmakescripts/GNUInstallDirs.cmake' ':!cmakescripts/cmake_uninstall.cmake.in' ':!release/deb-control.in'
+# Process C files separately, so we can parse out the comments
+grep_without_c_comments "$EXPR" $CFILES $NFORMATTED ':!common/rr.h' ':!server/rrtransport.h' $EXCLFILES
 unset EXPR
 echo
 
@@ -127,7 +128,13 @@ echo
 
 echo '---------- C++-style comments in C files ----------'
 echo
-git grep -E '//' -- '*.c' 'common/rr.h' 'include/[a-z]*.h' 'server/rrtransport.h' $EXCLFILES
+git grep -E '//' -- $CFILES $EXCLFILES
+echo
+
+echo '---------- C-style comments in C++ files ----------'
+echo
+git grep -E '/\*' -- '*.c*' '*.h*' $NCFILES $NFORMATTED $EXCLFILES
+git grep -E '\*/' -- '*.c*' '*.h*' $NCFILES $NFORMATTED $EXCLFILES
 echo
 
 echo # ************************************************************************

@@ -39,6 +39,9 @@ styletest.c:something;// hit
 styletest.c:something; // hit
 styletest.c:something;  // miss [hit on C++ comments]
 
+---------- C-style comments in C++ files ----------
+
+
 
 ********** DETECTING BAD LINE CONTINUATION SPACING **********
 ---------- More than one space, no spaces ----------

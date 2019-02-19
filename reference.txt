@@ -26,6 +26,9 @@
 ---------- C++-style comments in C files ----------
 
 
+---------- C-style comments in C++ files ----------
+
+
 
 ********** DETECTING BAD LINE CONTINUATION SPACING **********
 ---------- More than one space, no spaces ----------
