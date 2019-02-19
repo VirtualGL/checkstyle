@@ -289,7 +289,7 @@ echo '********** DETECTING INCORRECT OPERATOR SPACING **********'
 echo '---------- Incorrect pointer operator spacing ----------'
 echo
 EXCLEXPR='(?!n\* &)'
-grep_without_c_comments "$EXCLEXPR"'[^ /\*}\t]\* ' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/vglserver_config'
+grep_without_c_comments "$EXCLEXPR"'[^ /\*}\t]\* ' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglserver_config' ':!util/utiltest.in'
 unset EXCLEXPR
 echo
 
