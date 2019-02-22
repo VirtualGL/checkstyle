@@ -167,7 +167,7 @@ echo '********** DETECTING INCORRECT BRACKET SPACING **********'
 
 echo '---------- Attached bracket ----------'
 echo
-EXCLEXPR='(?!extern \"C\" {)(?!namespace)(?!enum)(?!#define TRY\(\)  try {)(?!BEGIN {DONE=0} {)(?!END {)(?!\tif\(DONE==0\) {)(?!\tif\(\/\^\$\|\^\[\^\#\]\/ && DONE==0\) {)'
+EXCLEXPR='(?!extern \"C\" {)(?!namespace)(?!#define TRY\(\)  try {)(?!BEGIN {DONE=0} {)(?!END {)(?!\tif\(DONE==0\) {)(?!\tif\(\/\^\$\|\^\[\^\#\]\/ && DONE==0\) {)'
 git grep -P '^'"$EXCLEXPR"'.*[^ \t]+ *(?<!= )\{[^}]*$' -- $FILES $NFORMATTED
 unset EXCLEXPR
 echo
@@ -181,9 +181,7 @@ echo
 
 echo '---------- { something ... ----------'
 echo
-EXCLEXPR='(?!{ \"Anaglyphic \(Green)'
-git grep -P '^[ \t]*'"$EXCLEXPR"'\{ [^\}\\]*$' -- $FILES
-unset EXCLEXPR
+git grep -P '^[ \t]*\{ [^\}\\]*$' -- $FILES
 echo
 
 echo '---------- something} or something  } ----------'
@@ -213,7 +211,7 @@ done
 echo '---------- Semicolon spacing in one-liners ----------'
 echo
 EXPR='; [^ \\}]'
-EXCLEXPR='(?!\t*for\()(?!\t*if\(.*\) for\()(?!\t*dstbptr = \&dstptr\[(pf-\>bindex|bindex)\];)'
+EXCLEXPR='(?!\t*for\()(?!\t*if\(.*\) for\()'
 grep_without_c_comments '^'"$EXCLEXPR"'.*'"$EXPR" $FILES $NFORMATTED ':!.travis.yml' ':!/*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/utiltest*.in'
 unset EXPR
 unset EXCLEXPR
@@ -251,22 +249,21 @@ echo # ************************************************************************
 
 echo '********** DETECTING INCORRECT MACRO SPACING **********'
 echo
-EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()(?!#define DEFINE_PF3\(id\))(?!#define DEFINE_PF4\(id\))(?!#define DEFINE_PF4C\(id\))(?!#define DRAWLOGO\(\))'
+EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()(?!#define DEFINE_PF3\(id\))(?!#define DEFINE_PF4\(id\))(?!#define DEFINE_PF4C\(id\))'
 git ls-files -- $FILES $NFORMATTED | while read file; do
 	pcregrep -H -M "$EXCLEXPR"'#define.*\\\n[^{\t]' $file
 done
+unset EXCLEXPR
 # #define  something
 git grep -E '^#define {2,}' -- $FILES
 # #define something(...) something
-EXCLEXPR='(?<!#define BYTESWAP\(i\) \()(?<!#define BYTESWAP16\(i\) \()(?<!#define BYTESWAP24\(i\) \()'
-git grep -P '^#define [A-Za-z0-9_]+\([^\(\)]*\) [^ \\]'"$EXCLEXPR" -- $FILES $NFORMATTED
+git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) [^ \\]' -- $FILES $NFORMATTED
 # #define something(...)   something
 git grep -E '^#define [A-Za-z0-9_]+\([^\(\)]*\) {3,}[^ ]' -- $FILES $NFORMATTED
 # #define something something
 git grep -E '^#define [^\(\) ]+ [^ \\]' -- $FILES $NFORMATTED
 # #define something   something
 git grep -E '^#define [^\(\) ]+ {3,}[^ \\]' -- $FILES $NFORMATTED ':!util/pf.c'
-unset EXCLEXPR
 echo
 
 echo # ************************************************************************
@@ -282,10 +279,8 @@ echo
 echo '---------- ,something ----------'
 echo
 EXPR=',[^ ]'
-EXCLEXPR='(?<!\" \\t)'
-git grep -P "$EXCLEXPR""$EXPR" -- $FILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config' |
+git grep -E "$EXPR" -- $FILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config' |
 	filter_quotes
-unset EXCLEXPR
 echo
 
 echo # ************************************************************************
@@ -384,16 +379,13 @@ echo
 
 OP='([\+\-\*/%&\|\^]*=|[\+\-\*/%\^\|&]|\>\>=*|\<\<=*|\?|\:)'
 EXPR='^[ \t]*'"$OP"' +'
-EXCLEXPR='(?!doSSL\(doSSL_\))'
-grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES ':!*.yml' ':!*.md' ':!release/*.in' |
-	pcregrep -v 'util/glreadtest.cpp:\t+\+ 1'
+grep_without_c_comments "$EXPR" $FILES ':!*.yml' ':!*.md' ':!release/*.in'
 
 OP='([=\!\<\>]=|\>|\<|&&|\|\|)'
 EXPR=' '"$OP"'($| \\$)'
 git grep -P "$EXPR" -- $FILES $NFORMATTED  ':!*.yml' ':!cmakescripts/' ':!include/vglutil.h' ':!server/vglgenkey' ':!server/vglrun.vars.in' ':!util/utiltest*.in'
 
 unset EXPR
-unset EXCLEXPR
 echo
 
 echo # ************************************************************************
