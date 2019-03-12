@@ -212,7 +212,10 @@ echo '---------- Semicolon spacing in one-liners ----------'
 echo
 EXPR='; [^ \\}]'
 EXCLEXPR='(?!\t*for\()(?!\t*if\(.*\) for\()'
-grep_without_c_comments '^'"$EXCLEXPR"'.*'"$EXPR" $FILES $NFORMATTED ':!.travis.yml' ':!/*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/utiltest*.in'
+grep_without_c_comments '^'"$EXCLEXPR"'.*'"$EXPR" $FILES $NFORMATTED ':!*.yml' ':!/*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/utiltest*.in'
+EXPR=';  +'
+EXCLEXPR=
+git grep -E "$EXPR" -- '*.yml' client/vglconnect.in 'release/*.in' server/servertest.in server/vglgenkey server/vgllogin server/vglrun.in server/vglrun.vars.in server/vglserver_config 'util/utiltest*.in'
 unset EXPR
 unset EXCLEXPR
 echo
@@ -291,7 +294,7 @@ echo '********** DETECTING INCORRECT OPERATOR SPACING **********'
 echo '---------- Incorrect pointer operator spacing ----------'
 echo
 EXCLEXPR='(?!n\* &)'
-grep_without_c_comments "$EXCLEXPR"'[^ /\*}\t]\* ' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglserver_config' ':!util/utiltest.in'
+grep_without_c_comments "$EXCLEXPR"'[^ /\*}\t]\* ' -- $FILES $NFORMATTED ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!util/utiltest.in'
 unset EXCLEXPR
 echo
 
