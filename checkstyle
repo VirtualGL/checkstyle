@@ -232,7 +232,7 @@ echo '********** DETECTING INCORRECT FUNCTION/TYPE CAST SPACING **********'
 
 echo '---------- (type*) ----------'
 echo
-git grep -E '[^ \(\*]\*\)' -- $FILES $NFORMATTED ':!client/vglconnect.in' ':!server/vglrun.in' ':!server/vglserver_config'
+git grep -E '[^ \(\*]\*\)' -- $FILES $NFORMATTED ':!client/vglconnect.in' ':!server/servertest.in' ':!server/vglrun.in' ':!server/vglserver_config'
 echo
 
 echo '---------- (type**) ----------'
