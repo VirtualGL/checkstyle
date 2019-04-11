@@ -36,7 +36,7 @@ set -f
 # Move along.  Nothing to format here.
 FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.hpp util/md5*.c include/md5.h server/xfonts.c include/boost/endian.hpp"
 NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
-EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!common/glx*.h :!server/fltk/ :!server/xcb_headers/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
+EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
 
 # C files
