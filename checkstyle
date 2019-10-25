@@ -122,7 +122,7 @@ echo '********** DETECTING INCORRECT COMMENT FORMATTING **********'
 
 echo '---------- Incorrect trailing comment spacing ----------'
 echo
-git grep -P '[^ \t:]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!server/vgllogin' ':!server/vglserver_config'
+git grep -P '[^ \t:]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglserver_config'
 git grep -E '[^ ] \/[\/\*]' -- $FILES $NFORMATTED
 echo
 
