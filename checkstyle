@@ -34,7 +34,7 @@ SCRIPTDIR=`dirname $0`
 set -f
 
 # Move along.  Nothing to format here.
-FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.hpp util/md5*.c include/md5.h server/xfonts.c include/boost/endian.hpp"
+FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.h util/md5*.c include/md5.h server/xfonts.c"
 NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
 EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
@@ -128,7 +128,8 @@ echo
 
 echo '---------- C++-style comments in C files ----------'
 echo
-git grep -E '//' -- $CFILES $EXCLFILES
+EXCLEXPR='(?<!http:)(?<!https:)'
+git grep -P "$EXCLEXPR"'//' -- $CFILES $EXCLFILES
 echo
 
 echo '---------- C-style comments in C++ files ----------'
