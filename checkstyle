@@ -3,7 +3,7 @@
 # VirtualGL Style Checker, or
 # How I Learned to Stop Worrying and Love Regular Expressions
 #
-# Copyright (C)2018-2019 D. R. Commander.  All Rights Reserved.
+# Copyright (C)2018-2020 D. R. Commander.  All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -36,12 +36,15 @@ set -f
 # Move along.  Nothing to format here.
 FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.h util/md5*.c include/md5.h server/xfonts.c"
 NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
-EXCLFILES=':!.gitattributes :!ci/ :!doc/ :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
+EXCLFILES=':!.gitattributes :!ci/ :!doc/*.gif :!doc/*.html :!doc/*.odg :!doc/*.png :!doc/L*.txt :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
 
 # C files
 CFILES='*.c include/[a-z]*.h diags/dsimple.h common/rr.h include/vglinline.h.in server/glext-vgl.h server/rrtransport.h'
 NCFILES=':!*.c :!include/[a-z]*.h :!diags/dsimple.h :!common/rr.h :!include/vglinline.h.in :!server/glext-vgl.h :!server/rrtransport.h'
+
+# Documentation files
+NDOCFILES=':!doc/[a-z]*.txt :!doc/*.css :!doc/*.rb'
 
 if [ "$1" = "-selftest" ]; then
 	pushd $SCRIPTDIR >/dev/null 2>&1
@@ -169,13 +172,13 @@ echo '********** DETECTING INCORRECT BRACKET SPACING **********'
 echo '---------- Attached bracket ----------'
 echo
 EXCLEXPR='(?!extern \"C\" {)(?!namespace)(?!#define TRY\(\)  try {)(?!BEGIN {DONE=0} {)(?!END {)(?!\tif\(DONE==0\) {)(?!\tif\(\/\^\$\|\^\[\^\#\]\/ && DONE==0\) {)'
-git grep -P '^'"$EXCLEXPR"'.*[^ \t]+ *(?<!= )\{[^}]*$' -- $FILES $NFORMATTED
+git grep -P '^'"$EXCLEXPR"'.*[^ \t]+ *(?<!= )\{[^}]*$' -- $FILES $NDOCFILES $NFORMATTED
 unset EXCLEXPR
 echo
 
 echo '---------- {something or {  something ----------'
 echo
-git grep -E '\{[^ }]' -- $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
+git grep -E '\{[^ }]' -- $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
 	filter_quotes
 git grep -E '\{  [^ ]' -- $FILES $NFORMATTED
 echo
@@ -187,14 +190,14 @@ echo
 
 echo '---------- something} or something  } ----------'
 echo
-git grep -P '[^ \{\t]}' -- $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
+git grep -P '[^ \{\t]}' -- $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
 	filter_quotes
 git grep -P '[^ ]  \}(?<!#define CATCH\(\)  \})' -- $FILES
 echo
 
 echo '---------- }something ----------'
 echo
-git grep -E '}[^ ;,\"]' -- $FILES ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!release/*.in' ':!server/vglgenkey' ':!server/vglserver_config'
+git grep -E '}[^ ;,\"]' -- $FILES $NDOCFILES ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!release/*.in' ':!server/vglgenkey' ':!server/vglserver_config'
 echo
 
 echo # ************************************************************************
@@ -243,7 +246,7 @@ echo
 
 echo '---------- (type) var ----------'
 echo
-grep_without_c_comments '(^|[\t ])\([^\*][^\)\> ]*\) [A-Za-z0-9_\(]' $FILES $NFORMATTED ':!*.md' ':!/L*.txt' ':!cmakescripts/' ':!release/' |
+grep_without_c_comments '(^|[\t ])\([^\*][^\)\> ]*\) [A-Za-z0-9_\(]' $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!/L*.txt' ':!cmakescripts/' ':!release/' |
 	filter_quotes |
 	filter_cmake_comments
 echo
@@ -283,7 +286,7 @@ echo
 echo '---------- ,something ----------'
 echo
 EXPR=',[^ ]'
-git grep -E "$EXPR" -- $FILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config' |
+git grep -E "$EXPR" -- $FILES $NDOCFILES $NFORMATTED ':!*CMakeLists.txt' ':!ChangeLog.md' ':!release/rpm.spec.in' ':!server/vglserver_config' |
 	filter_quotes
 echo
 
@@ -318,7 +321,7 @@ echo
 OP='(?!\-\>)(?!\+\+)(?!\-\-)(?!\*\*)([=\+\-\*/%&\|\^\!\<\>]*=|[\+/%]|\*(?!\))|\-(?![0-9])|\>+|\<+|&+|\|+|\^)'
 EXPR='[^ ]\b[\)\]]*'"$OP"
 EXCLEXPR='(?<!::operator=)(?<!&operator=)(?<!\VirtualWin\*)'
-grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
+grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
 	filter_quotes |
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
@@ -328,7 +331,7 @@ grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NFORMATTED ':!*.md' ':!*CMake
 # Process ternary conditional operators separately, so we can filter out
 # cases and labels.
 EXPR='[^ ]\b[\)\]]*(\?|:(?!:))'
-grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*' ':!server/servertest.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+grep_without_c_comments "$EXPR" $FILES $NDOCFILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*' ':!server/servertest.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
 	filter_quotes |
 	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default|public|private|protected|bailout|noshm|done|found|finally|global|local|start):'
 
@@ -347,7 +350,7 @@ echo
 # open source C style checker!
 OP='([=\+\-\*/%&\|\^\!\<\>]*=|[\+/%]|\>+|\<+|&&|\|+|\^)(?<!\-\>)(?<!\+\+)(?<!\-\-)'
 EXPR="$OP"'[\(]*\b[^ ]'
-grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
+grep_without_c_comments "$EXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/servertest.in' ':!server/vglgenkey' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' ':!util/*.in' |
 	filter_quotes |
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
@@ -355,7 +358,7 @@ grep_without_c_comments "$EXPR" $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' 
 
 # Process ternary conditional operators separately
 EXPR='(\?|(?<!:):)[\(]*\b[^ ]'
-grep_without_c_comments "$EXPR" $FILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
+grep_without_c_comments "$EXPR" $FILES $NDOCFILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
 	filter_quotes
 
 unset EXPR
@@ -363,7 +366,7 @@ echo
 
 echo '---------- [!|~] something ----------'
 echo
-git grep -E '[!~] \b' -- $FILES $NFORMATTED ':!server/vglserver_config'
+git grep -E '[!~] \b' -- $FILES $NDOCFILES $NFORMATTED ':!server/vglserver_config'
 echo
 
 echo # ************************************************************************
@@ -382,11 +385,11 @@ echo
 
 OP='([\+\-\*/%&\|\^]*=|[\+\-\*/%\^\|&]|\>\>=*|\<\<=*|\?|\:)'
 EXPR='^[ \t]*'"$OP"' +'
-grep_without_c_comments "$EXPR" $FILES ':!*.yml' ':!*.md' ':!release/*.in'
+grep_without_c_comments "$EXPR" $FILES $NDOCFILES ':!*.yml' ':!*.md' ':!release/*.in'
 
 OP='([=\!\<\>]=|\>|\<|&&|\|\|)'
 EXPR=' '"$OP"'($| \\$)'
-git grep -P "$EXPR" -- $FILES $NFORMATTED  ':!*.yml' ':!cmakescripts/' ':!include/vglutil.h' ':!server/vglgenkey' ':!server/vglrun.vars.in' ':!util/utiltest*.in'
+git grep -P "$EXPR" -- $FILES $NDOCFILES $NFORMATTED  ':!*.yml' ':!cmakescripts/' ':!include/vglutil.h' ':!server/vglgenkey' ':!server/vglrun.vars.in' ':!util/utiltest*.in'
 
 unset EXPR
 echo
@@ -398,7 +401,7 @@ echo '********** DETECTING INCORRECT FUNCTION SPACING **********'
 echo
 EXPR='\b \('
 EXCLEXPR='(?<!if \()(?<!delete \()(?<!else \()(?<!return \()'
-grep_without_c_comments "$EXPR""$EXCLEXPR"'[^\*]' $FILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
+grep_without_c_comments "$EXPR""$EXCLEXPR"'[^\*]' $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!*.yml' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
 	filter_quotes
 unset EXPR
 unset EXCLEXPR
