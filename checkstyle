@@ -212,6 +212,11 @@ for statement in if for catch while do switch; do
 	echo
 done
 
+echo '---------- Semicolon spacing ----------'
+echo
+git grep -P ' ;(?!;)' -- $FILES $NFORMATTED ':!server/vglrun.in'
+echo
+
 echo '---------- Semicolon spacing in one-liners ----------'
 echo
 EXPR='; [^ \\}]'

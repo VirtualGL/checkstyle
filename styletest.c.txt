@@ -22,7 +22,7 @@ styletest.c:
 
 ---------- General whitespace errors ----------
 
-styletest.c:416: new blank line at EOF.
+styletest.c:418: new blank line at EOF.
 
 
 ********** DETECTING INCORRECT COMMENT FORMATTING **********
@@ -116,6 +116,10 @@ styletest.c:do ()  /* hit */
 ---------- switch ( ----------
 
 styletest.c:switch ()  /* hit */
+
+---------- Semicolon spacing ----------
+
+styletest.c:do_stuff ;  /* hit */
 
 ---------- Semicolon spacing in one-liners ----------
 
