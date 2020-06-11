@@ -338,7 +338,7 @@ grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md
 EXPR='[^ ]\b[\)\]]*(\?|:(?!:))'
 grep_without_c_comments "$EXPR" $FILES $NDOCFILES $NFORMATTED ':!*.yml' ':!*.md' ':!*CMakeLists.txt' ':!/L*.txt' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*' ':!server/servertest.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglrun.vars.in' ':!server/vglserver_config' |
 	filter_quotes |
-	grep -vE '(\.c|\.cpp|\.h):.*(case [A-Za-z0-9_]+|default|public|private|protected|bailout|noshm|done|found|finally|global|local|start):'
+	grep -vE '(\.c|\.cpp|\.h|testplugin-mapfile):.*(case [A-Za-z0-9_]+|default|public|private|protected|bailout|noshm|done|found|finally|global|local|start):'
 
 unset EXPR
 unset EXCLEXPR
