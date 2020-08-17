@@ -261,7 +261,7 @@ echo # ************************************************************************
 
 echo '********** DETECTING INCORRECT MACRO SPACING **********'
 echo
-EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()(?!#define DEFINE_PF3\(id\))(?!#define DEFINE_PF4\(id\))(?!#define DEFINE_PF4C\(id\))'
+EXCLEXPR='(?!#define LOAD_XCB_SYMBOL\()(?!#define VGL_THREAD_LOCAL\()(?!#define FBX_THREAD_LOCAL\()(?!#define DEFINE_PF3\(id\))(?!#define DEFINE_PF4\(id\))(?!#define DEFINE_PF4C\(id\))'
 git ls-files -- $FILES $NFORMATTED | while read file; do
 	pcregrep -H -M "$EXCLEXPR"'#define.*\\\n[^{\t]' $file
 done
