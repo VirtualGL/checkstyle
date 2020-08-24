@@ -360,6 +360,7 @@ grep_without_c_comments "$EXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMake
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
 	pcregrep -v ':\t*\(dynamic_cast \<.*\>' |
+	pcregrep -v ':\t*if\(dynamic_cast \<.*\>' |
 	pcregrep -v ':#define HASH  Hash\<'
 
 # Process ternary conditional operators separately
