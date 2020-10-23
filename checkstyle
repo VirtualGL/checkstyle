@@ -246,7 +246,7 @@ echo
 
 echo '---------- (type**) ----------'
 echo
-git grep -E '[^ \*]\*\*\)' -- $FILES ':!BUILDING.md'
+git grep -E '[^ \*]\*\*\)' -- $FILES ':!BUILDING.md' ':!ChangeLog.md'
 echo
 
 echo '---------- (type) var ----------'
