@@ -36,7 +36,7 @@ set -f
 # Move along.  Nothing to format here.
 FORMATTED="$(git ls-files -- glxdemos ':!glxdemos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.h util/md5*.c include/md5.h server/xfonts.c"
 NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
-EXCLFILES=':!.gitattributes :!ci/ :!doc/*.gif :!doc/*.html :!doc/*.odg :!doc/*.png :!doc/L*.txt :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
+EXCLFILES=':!.gitattributes :!doc/*.gif :!doc/*.html :!doc/*.odg :!doc/*.png :!doc/L*.txt :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
 
 # C files
@@ -178,7 +178,7 @@ echo
 
 echo '---------- {something or {  something ----------'
 echo
-git grep -E '\{[^ }]' -- $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
+git grep -E '\{[^ }]' -- $FILES $NDOCFILES $NFORMATTED ':!.github/workflows' ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
 	filter_quotes
 git grep -E '\{  [^ ]' -- $FILES $NFORMATTED
 echo
@@ -190,14 +190,14 @@ echo
 
 echo '---------- something} or something  } ----------'
 echo
-git grep -P '[^ \{\t]}' -- $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
+git grep -P '[^ \{\t]}' -- $FILES $NDOCFILES $NFORMATTED ':!.github/workflows' ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!client/vglconnect.in' ':!release/*.in' ':!server/vglgenkey' ':!server/vglrun.in' ':!server/vglserver_config' |
 	filter_quotes
 git grep -P '[^ ]  \}(?<!#define CATCH\(\)  \})' -- $FILES
 echo
 
 echo '---------- }something ----------'
 echo
-git grep -E '}[^ ;,\"]' -- $FILES $NDOCFILES ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!release/*.in' ':!server/vglgenkey' ':!server/vglserver_config'
+git grep -E '}[^ ;,\"]' -- $FILES $NDOCFILES ':!.github/workflows' ':!*.md' ':!*CMakeLists.txt' ':!cmakescripts/' ':!release/*.in' ':!server/vglgenkey' ':!server/vglserver_config'
 echo
 
 echo # ************************************************************************
