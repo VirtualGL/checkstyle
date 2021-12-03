@@ -34,7 +34,7 @@ SCRIPTDIR=`dirname $0`
 set -f
 
 # Move along.  Nothing to format here.
-FORMATTED="$(git ls-files -- demos ':!demos/glxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.h util/md5*.c include/md5.h server/xfonts.c"
+FORMATTED="$(git ls-files -- demos ':!demos/glxspheres.c' ':!demos/eglxspheres.c' ':!*CMakeLists.txt') diags/dsimple.c diags/dsimple.h include/boost/endian.h util/md5*.c include/md5.h server/xfonts.c"
 NFORMATTED=$(for i in $FORMATTED; do echo :!$i; done)
 EXCLFILES=':!.gitattributes :!doc/*.gif :!doc/*.html :!doc/*.odg :!doc/*.png :!doc/L*.txt :!server/fltk/ :!*.rtf :!include/boost/LICENSE_1_0.txt'
 FILES="./* $EXCLFILES"
