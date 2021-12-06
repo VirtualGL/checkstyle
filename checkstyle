@@ -3,7 +3,7 @@
 # VirtualGL Style Checker, or
 # How I Learned to Stop Worrying and Love Regular Expressions
 #
-# Copyright (C)2018-2020 D. R. Commander.  All Rights Reserved.
+# Copyright (C)2018-2021 D. R. Commander.  All Rights Reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -125,7 +125,7 @@ echo '********** DETECTING INCORRECT COMMENT FORMATTING **********'
 
 echo '---------- Incorrect trailing comment spacing ----------'
 echo
-git grep -P '[^ \t:]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglserver_config'
+git grep -P '[^ \t:\/]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglserver_config'
 git grep -E '[^ ] \/[\/\*]' -- $FILES $NFORMATTED
 echo
 
@@ -331,6 +331,7 @@ grep_without_c_comments "$EXPR""$EXCLEXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md
 	pcregrep -v ':\t*#include \<.*\>' |
 	pcregrep -v ':\t*template \<.*\>' |
 	pcregrep -v ':#define HASH  Hash\<' |
+	pcregrep -v ':#define HASH  faker::Hash\<' |
 	pcregrep -v ':LOAD_XCB_SYMBOL\(.*\)'
 
 # Process ternary conditional operators separately, so we can filter out
@@ -361,7 +362,8 @@ grep_without_c_comments "$EXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMake
 	pcregrep -v ':\t*template \<.*\>' |
 	pcregrep -v ':\t*\(dynamic_cast \<.*\>' |
 	pcregrep -v ':\t*if\(dynamic_cast \<.*\>' |
-	pcregrep -v ':#define HASH  Hash\<'
+	pcregrep -v ':#define HASH  Hash\<' |
+	pcregrep -v ':#define HASH  faker::Hash\<'
 
 # Process ternary conditional operators separately
 EXPR='(\?|(?<!:):)[\(]*\b[^ ]'
