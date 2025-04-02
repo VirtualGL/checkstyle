@@ -125,7 +125,7 @@ echo '********** DETECTING INCORRECT COMMENT FORMATTING **********'
 
 echo '---------- Incorrect trailing comment spacing ----------'
 echo
-git grep -P '[^ \t:\/]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglserver_config'
+git grep -P '[^ \t:\/]\/[\/\*]' -- $FILES ':!*.yml' ':!client/vglconnect.in' ':!release/*.in' ':!release/entitlements.plist' ':!server/vgllogin' ':!server/vglrun.in' ':!server/vglserver_config'
 git grep -E '[^ ] \/[\/\*]' -- $FILES $NFORMATTED
 echo
 
@@ -367,7 +367,7 @@ grep_without_c_comments "$EXPR" $FILES $NDOCFILES $NFORMATTED ':!*.md' ':!*CMake
 
 # Process ternary conditional operators separately
 EXPR='(\?|(?<!:):)[\(]*\b[^ ]'
-grep_without_c_comments "$EXPR" $FILES $NDOCFILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
+grep_without_c_comments "$EXPR" $FILES $NDOCFILES ':!*.yml' ':!*.md' ':!client/vglconnect.in' ':!cmakescripts/' ':!release/*.in' ':!release/entitlements.plist' ':!server/servertest.in' ':!server/vglrun.in' ':!util/utiltest.in' |
 	filter_quotes
 
 unset EXPR
